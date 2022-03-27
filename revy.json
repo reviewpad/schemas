@@ -1,0 +1,259 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$comment": "https://www.notion.so/reviewpad/Cautious-Broccoli-c4bf11ce4a0a41a5bc8e28f755373e50#e23f7ffc13e44868b7ea7796de198d39",
+    "definitions": {
+        "import": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "description": "Url to another revy.yml configuration file",
+                    "type": "string",
+                    "pattern": "\\.(yml|yaml)$",
+                    "examples": [
+                        "./path/to/revy.yml",
+                        "https://path.com/to/revy.yml"
+                    ]
+                }
+            }
+        },
+        "action": {
+            "description": "Action to run. This action needs to be an aladino built-in function.",
+            "type": "string",
+            "pattern": "^\\$[a-zA-Z]*\\(.*\\)$",
+            "examples": [
+                "$assignReviewer([\"john\"])",
+                "$addLabel(\"ship\")",
+                "$merge(\"rebase\")"
+            ]
+        },
+        "rule": {
+            "description": "A rule specifies a filter over a pull request.",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "The description can be used to provide more details about the rule.",
+                    "type": "string"
+                },
+                "kind": {
+                    "description": "The kind of a rule. The kind is related to different properties of pull requests that will be used in the evaluation of the 'spec' field.",
+                    "type": "string",
+                    "enum": [
+                        "patch"
+                    ]
+                },
+                "spec": {
+                    "description": "The spec is a boolean expression in a domain specific language called Aladino (Portuguese translation of Aladdin).",
+                    "type": "string",
+                    "examples": [
+                        "$fileCount() > 5",
+                        "$filesExtensions([\".md\"])",
+                        "$hasFileName(\"main.js\")"
+                    ]
+                }
+            },
+            "required": [
+                "kind",
+                "spec"
+            ],
+            "additionalProperties": false
+        },
+        "patchRule": {
+            "description": "A patch rule defines a set of rules. It can also specify a set o extra actions to run when the rules are true.",
+            "type": "object",
+            "properties": {
+                "rule": {
+                    "description": "Rule to be meet. This rule must the defined in 'rules', otherwise an error will be triggered.",
+                    "type": "string",
+                    "patter": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                },
+                "extraActions": {
+                    "description": "List of all extra action to be run then the defined rules are meet. This extra action run after the action defined in the protection gate.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/action"
+                    },
+                    "minItems": 1
+                }
+            },
+            "required": [
+                "rule"
+            ],
+            "additionalProperties": false
+        },
+        "protectionGate": {
+            "description": "A protection gate specifies a set of rules that need to be meet in order to run a defined set of actions.",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "The gate name.",
+                    "type": "string",
+                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                },
+                "description": {
+                    "description": "The description can be used to provide more details about the protection gate.",
+                    "type": "string"
+                },
+                "patchRules": {
+                    "description": "In the patchRules field, we can specify references to multiple rules. For each rule, we can also specify a list of extra actions that will be executed if this rule is activated by the pull request.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/patchRule"
+                    },
+                    "minItems": 1
+                },
+                "actions": {
+                    "description": "The set of actions to be executed when all rules are true.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/action"
+                    },
+                    "minItems": 1
+                },
+                "alwaysRun": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "patchRules"
+            ],
+            "additionalProperties": false
+        },
+        "groupBasic": {
+            "description": "A group specifies a set of users in the repository where the protection gates run.",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "The description can be used to provide more details about the group.",
+                    "type": "string"
+                },
+                "kind": {
+                    "description": "The kind of a group.",
+                    "type": "string",
+                    "enum": [
+                        "developers"
+                    ]
+                },
+                "spec": {
+                    "description": "The spec is an expression in a domain specific language called Aladino that is evaluated to an array of users.",
+                    "type": "string",
+                    "examples": [
+                        "'[\"john\", \"jane\"]'"
+                    ]
+                }
+            },
+            "required": [
+                "kind",
+                "spec"
+            ],
+            "additionalProperties": false
+        },
+        "groupWithType": {
+            "description": "A group specifies a set of users in the repository where the protection gates run.",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "The description can be used to provide more details about the group.",
+                    "type": "string"
+                },
+                "kind": {
+                    "description": "The kind of a group.",
+                    "type": "string",
+                    "enum": [
+                        "developers"
+                    ]
+                },
+                "type": {
+                    "description": "The type of a group. Represents the type function to the applied to the group.",
+                    "type": "string",
+                    "enum": [
+                        "filter"
+                    ]
+                },
+                "param": {
+                    "description": "Param describes the parameter name to be used on the 'spec' expression.",
+                    "type": "string",
+                    "examples": [
+                        "$dev"
+                    ]
+                },
+                "where": {
+                    "description": "The where is an expression in a domain specific language called Aladino that is evaluated to an array of users.",
+                    "type": "string",
+                    "examples": [
+                        "$totalCreatedPRs($dev) < 10"
+                    ]
+                }
+            },
+            "required": [
+                "kind",
+                "type",
+                "param",
+                "where"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "properties": {
+        "apiVersion": {
+            "description": "The version of revy to be used. You can set the value to 'reviewpad.com/v1alpha'.",
+            "type": "string"
+        },
+        "mode": {
+            "description": "The mode in which revy will run. 'silent' will not add Reviewpad comment to pull request.",
+            "type": "string",
+            "enum": [
+                "silent"
+            ]
+        },
+        "imports": {
+            "description": "List of all imports to be loaded. This is used in order to allow to split configuration files and use them across different projects.",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/import"
+            },
+            "minItems": 1
+        },
+        "rules": {
+            "description": "List of all rules that will be used in the protection gates. All rules defined here should be used, otherwise an error will be triggered.",
+            "type": "object",
+            "patternProperties": {
+                "^[_a-zA-Z][a-zA-Z0-9_-]*$": {
+                    "$ref": "#/definitions/rule"
+                }
+            },
+            "minProperties": 1,
+            "additionalProperties": false
+        },
+        "protectionGates": {
+            "description": "List of all protection gates. A protection gate is a barrier that will be tested against the selected rules and if all rules evaluate to true, then all defined actions run.",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/protectionGate"
+            },
+            "minItems": 1
+        },
+        "groups": {
+            "description": "List of all groups. A group corresponds to a set of users in the repo where the pull request occurs.",
+            "type": "object",
+            "patternProperties": {
+                "^[_a-zA-Z][a-zA-Z0-9_-]*$": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/definitions/groupBasic"
+                        },
+                        {
+                            "$ref": "#/definitions/groupWithType"
+                        }
+                    ]
+                }
+            },
+            "minProperties": 1,
+            "additionalProperties": false
+        },
+        "additionalProperties": false
+    },
+    "required": [
+        "apiVersion"
+    ],
+    "additionalProperties": false
+}
