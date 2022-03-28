@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$comment": "https://www.notion.so/reviewpad/Cautious-Broccoli-c4bf11ce4a0a41a5bc8e28f755373e50#e23f7ffc13e44868b7ea7796de198d39",
+    "$comment": "https://docs.reviewpad.com/docs",
     "definitions": {
         "import": {
             "type": "object",
@@ -195,7 +195,7 @@
     },
     "properties": {
         "apiVersion": {
-            "description": "The version of revy to be used. You can set the value to 'reviewpad.com/v1alpha'.",
+            "description": "The api version of revy to be used. More info: https://docs.reviewpad.com/docs/revy-syntax#api-version",
             "type": "string"
         },
         "mode": {
