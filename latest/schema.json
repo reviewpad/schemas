@@ -1,0 +1,304 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$comment": "https://docs.reviewpad.com/docs",
+    "definitions": {
+        "import": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "description": "Url to another reviewpad.yml configuration file",
+                    "type": "string",
+                    "pattern": "\\.(yml|yaml)$",
+                    "examples": [
+                        "./path/to/reviewpad.yml",
+                        "https://path.com/to/reviewpad.yml"
+                    ]
+                }
+            }
+        },
+        "action": {
+            "description": "Action to run. This action needs to be an aladino built-in function.",
+            "type": "string",
+            "pattern": "^\\$[a-zA-Z]*\\(.*\\)$",
+            "examples": [
+                "$assignReviewer([\"john\"])",
+                "$assignReviewer($team(\"devops\"), 3)",
+                "$assignRandomReviewer()",
+                "$addLabel(\"large\")",
+                "$removeLabel(\"medium\")",
+                "$merge(\"rebase\")"
+            ]
+        },
+        "label": {
+            "description": "A label is used to sort and describe pull requests.",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "A short description of the label. Must be 100 characters or fewer.",
+                    "type": "string"
+                },
+                "color": {
+                    "description": "The hexadecimal color code for the label, without the leading #.",
+                    "type": "string"
+                }
+            },
+            "required": [],
+            "additionalProperties": false
+        },
+        "rule": {
+            "description": "A rule specifies a filter over a pull request.",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "The description can be used to provide more details about the rule.",
+                    "type": "string"
+                },
+                "kind": {
+                    "description": "The kind of a rule. The kind is related to different properties of pull requests that will be used in the evaluation of the 'spec' field.",
+                    "type": "string",
+                    "enum": [
+                        "patch"
+                    ]
+                },
+                "spec": {
+                    "description": "The spec is a boolean expression in a domain specific language called Aladino (Portuguese translation of Aladdin).",
+                    "type": "string",
+                    "examples": [
+                        "$author() == \"john\"",
+                        "$reviewers() != []",
+                        "$assignees() == [\"john\"]",
+                        "$labels() == [\"feat\"]",
+                        "$fileCount() > 5",
+                        "$size() > 100",
+                        "$hasFileName(\"main.js\")",
+                        "$hasFileExtensions([\".test.ts\"])",
+                        "$hasLinearHistory()",
+                        "$hasLinkedIssues()",
+                        "$hasCodePattern(\"placeBet\\(.*\\)\")",
+                        "$hasAnnotation(\"critical\")",
+                        "$isDraft()",
+                        "$isElementOf($author(), $team(\"devops\"))",
+                        "$contains($title(), \"bug\")",
+                        "$comment(\"Missing tests\")",
+                        "$changed(\"src/@1.java\", \"test/@1.java\")"
+                    ]
+                }
+            },
+            "required": [
+                "kind",
+                "spec"
+            ],
+            "additionalProperties": false
+        },
+        "if": {
+            "description": "Defines a set of rules. It can also specify a set o extra actions to run when the rules are true.",
+            "type": "object",
+            "properties": {
+                "rule": {
+                    "description": "Rule to be meet. This rule must the defined in 'rules', otherwise an error will be triggered.",
+                    "type": "string",
+                    "patter": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                },
+                "extra-actions": {
+                    "description": "List of all extra action to be run then the defined rules are meet. This extra action run after the action defined in the workflow.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/action"
+                    },
+                    "minItems": 1
+                }
+            },
+            "required": [
+                "rule"
+            ],
+            "additionalProperties": false
+        },
+        "workflow": {
+            "description": "A workflow specifies a set of rules that need to be meet in order to run a defined set of actions.",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "The workflow name.",
+                    "type": "string",
+                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                },
+                "description": {
+                    "description": "The description can be used to provide more details about the workflow.",
+                    "type": "string"
+                },
+                "if": {
+                    "description": "In the if field, we can specify references to multiple rules. For each rule, we can also specify a list of extra actions that will be executed if this rule is activated by the pull request.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/if"
+                    },
+                    "minItems": 1
+                },
+                "then": {
+                    "description": "The set of actions to be executed when all rules are true.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/action"
+                    },
+                    "minItems": 1
+                },
+                "alwaysRun": {
+                    "type": "boolean"
+                }
+            },
+            "additionalProperties": false
+        },
+        "groupBasic": {
+            "description": "A group specifies a set of users in the repository where the workflow runs.",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "The description can be used to provide more details about the group.",
+                    "type": "string"
+                },
+                "kind": {
+                    "description": "The kind of a group.",
+                    "type": "string",
+                    "enum": [
+                        "developers"
+                    ]
+                },
+                "spec": {
+                    "description": "The spec is an expression in a domain specific language called Aladino that is evaluated to an array of users.",
+                    "type": "string",
+                    "examples": [
+                        "'[\"john\", \"jane\"]'"
+                    ]
+                }
+            },
+            "required": [
+                "kind",
+                "spec"
+            ],
+            "additionalProperties": false
+        },
+        "groupWithType": {
+            "description": "A group specifies a set of users in the repository where the workflow runs.",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "The description can be used to provide more details about the group.",
+                    "type": "string"
+                },
+                "kind": {
+                    "description": "The kind of a group.",
+                    "type": "string",
+                    "enum": [
+                        "developers"
+                    ]
+                },
+                "type": {
+                    "description": "The type of a group. Represents the type function to the applied to the group.",
+                    "type": "string",
+                    "enum": [
+                        "filter"
+                    ]
+                },
+                "param": {
+                    "description": "Param describes the parameter name to be used on the 'spec' expression.",
+                    "type": "string",
+                    "examples": [
+                        "$dev"
+                    ]
+                },
+                "where": {
+                    "description": "The where is an expression in a domain specific language called Aladino that is evaluated to an array of users.",
+                    "type": "string",
+                    "examples": [
+                        "$totalCreatedPullRequests($dev) < 10"
+                    ]
+                }
+            },
+            "required": [
+                "kind",
+                "type",
+                "param",
+                "where"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "properties": {
+        "api-version": {
+            "description": "The version of revy to be used. You can set the value to 'reviewpad.com/v1alpha'.",
+            "type": "string",
+            "examples": [
+                "reviewpad.com/v1.x"
+            ]
+        },
+        "mode": {
+            "description": "The mode in which reviewpad will run. 'verbose' to add a comment on the pull request with the triggered workflows. 'silent' to run without any comment. By default the mode is 'silent'",
+            "type": "string",
+            "enum": [
+                "silent",
+                "verbose"
+            ]
+        },
+        "imports": {
+            "description": "List of all imports to be loaded. This is used in order to allow to split configuration files and use them across different projects.",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/import"
+            },
+            "minItems": 1
+        },
+        "labels": {
+            "description": "List labels to be used. Labels that do not exist in the project will be created using the provided color and description",
+            "type": "object",
+            "patternProperties": {
+                "^[_a-zA-Z][a-zA-Z0-9_-]*$": {
+                    "$ref": "#/definitions/label"
+                }
+            },
+            "minProperties": 1,
+            "additionalProperties": false
+        },
+        "rules": {
+            "description": "List of all rules that will be used in the workflows. All rules defined here should be used, otherwise an error will be triggered.",
+            "type": "object",
+            "patternProperties": {
+                "^[_a-zA-Z][a-zA-Z0-9_-]*$": {
+                    "$ref": "#/definitions/rule"
+                }
+            },
+            "minProperties": 1,
+            "additionalProperties": false
+        },
+        "workflows": {
+            "description": "List of all workflows. A workflow is tested against the selected rules and if all rules evaluate to true, then all defined actions run.",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/workflow"
+            },
+            "minItems": 1
+        },
+        "groups": {
+            "description": "List of all groups. A group corresponds to a set of users in the repo where the pull request occurs.",
+            "type": "object",
+            "patternProperties": {
+                "^[_a-zA-Z][a-zA-Z0-9_-]*$": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/definitions/groupBasic"
+                        },
+                        {
+                            "$ref": "#/definitions/groupWithType"
+                        }
+                    ]
+                }
+            },
+            "minProperties": 1,
+            "additionalProperties": false
+        },
+        "additionalProperties": false
+    },
+    "required": [
+        "api-version"
+    ],
+    "additionalProperties": false
+}
