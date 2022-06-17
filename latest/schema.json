@@ -142,7 +142,7 @@
                     },
                     "minItems": 1
                 },
-                "alwaysRun": {
+                "always-run": {
                     "type": "boolean"
                 }
             },
@@ -237,6 +237,14 @@
             "enum": [
                 "silent",
                 "verbose"
+            ]
+        },
+        "edition": {
+            "description": "The edition in which reviewpad will run. 'team' to benefit from the open source built-ins. 'professional' to benefit from all the built-ins available in the documentation. By default the mode is 'team'",
+            "type": "string",
+            "enum": [
+                "team",
+                "professional"
             ]
         },
         "imports": {
