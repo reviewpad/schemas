@@ -49,6 +49,11 @@
             "description": "A rule specifies a filter over a pull request.",
             "type": "object",
             "properties": {
+                "name": {
+                    "description": "Name of the rule. Used to identify the rule.",
+                    "type": "string",
+                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                },
                 "description": {
                     "description": "The description can be used to provide more details about the rule.",
                     "type": "string"
@@ -85,6 +90,7 @@
                 }
             },
             "required": [
+                "name",
                 "kind",
                 "spec"
             ],
@@ -97,7 +103,7 @@
                 "rule": {
                     "description": "Rule to be meet. This rule must the defined in 'rules', otherwise an error will be triggered.",
                     "type": "string",
-                    "patter": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
                 },
                 "extra-actions": {
                     "description": "List of all extra action to be run then the defined rules are meet. This extra action run after the action defined in the workflow.",
@@ -152,6 +158,11 @@
             "description": "A group specifies a set of users in the repository where the workflow runs.",
             "type": "object",
             "properties": {
+                "name": {
+                    "description": "Name of the group. Used to identify the group.",
+                    "type": "string",
+                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                },
                 "description": {
                     "description": "The description can be used to provide more details about the group.",
                     "type": "string"
@@ -172,6 +183,7 @@
                 }
             },
             "required": [
+                "name",
                 "kind",
                 "spec"
             ],
@@ -181,6 +193,11 @@
             "description": "A group specifies a set of users in the repository where the workflow runs.",
             "type": "object",
             "properties": {
+                "name": {
+                    "description": "Name of the group. Used to identify the group.",
+                    "type": "string",
+                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                },
                 "description": {
                     "description": "The description can be used to provide more details about the group.",
                     "type": "string"
@@ -215,6 +232,7 @@
                 }
             },
             "required": [
+                "name",
                 "kind",
                 "type",
                 "param",
@@ -268,11 +286,9 @@
         },
         "rules": {
             "description": "List of all rules that will be used in the workflows. All rules defined here should be used, otherwise an error will be triggered.",
-            "type": "object",
-            "patternProperties": {
-                "^[_a-zA-Z][a-zA-Z0-9_-]*$": {
-                    "$ref": "#/definitions/rule"
-                }
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/rule"
             },
             "minProperties": 1,
             "additionalProperties": false
@@ -287,18 +303,16 @@
         },
         "groups": {
             "description": "List of all groups. A group corresponds to a set of users in the repo where the pull request occurs.",
-            "type": "object",
-            "patternProperties": {
-                "^[_a-zA-Z][a-zA-Z0-9_-]*$": {
-                    "oneOf": [
-                        {
-                            "$ref": "#/definitions/groupBasic"
-                        },
-                        {
-                            "$ref": "#/definitions/groupWithType"
-                        }
-                    ]
-                }
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    {
+                        "$ref": "#/definitions/groupBasic"
+                    },
+                    {
+                        "$ref": "#/definitions/groupWithType"
+                    }
+                ]
             },
             "minProperties": 1,
             "additionalProperties": false
