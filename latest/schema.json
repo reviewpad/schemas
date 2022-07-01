@@ -33,6 +33,10 @@
             "description": "A label is used to sort and describe pull requests.",
             "type": "object",
             "properties": {
+                "name": {
+                    "description": "The name of the label.",
+                    "type": "string"
+                },
                 "description": {
                     "description": "A short description of the label. Must be 100 characters or fewer.",
                     "type": "string"
