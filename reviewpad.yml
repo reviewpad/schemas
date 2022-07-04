@@ -73,6 +73,16 @@ rules:
     description: Pull request does not have a linear history
     spec: '!$hasLinearHistory()'
 
+  - name: is-first-time-contributor
+    kind: patch
+    description: First pull request created
+    spec: '$totalCreatedPullRequests($author()) == 1'
+
+  - name: authored-by-official-contributors
+    kind: patch
+    description: Pull request was authored by official contributors
+    spec: '$isElementOf($author(), $group("official-contributors"))'
+    
   - name: authored-by-external-contributors
     kind: patch
     description: Pull request was authored by external contributors
@@ -124,10 +134,9 @@ workflows:
         extra-actions:
           - '$commentOnce("Thank you so much for your first contribution!")'
       - rule: authored-by-official-contributors
-        extra-actions: 
-          - '$assignReviewer($group("owners"), 1)'
       - rule: authored-by-external-contributors
         extra-actions:
           - '$info("Thank you for your contribution - you are awesome!")'
-
+    then:
+      - '$assignReviewer($group("owners"), 1)'
 
