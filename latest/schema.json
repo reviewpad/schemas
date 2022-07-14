@@ -19,7 +19,7 @@
         "action": {
             "description": "Action to run. This action needs to be an aladino built-in function.",
             "type": "string",
-            "pattern": "^\\$[a-zA-Z]*\\(.*\\)$",
+            "pattern": ">?\\s*\\$[a-zA-Z]*\\((.|\\s)*\\)",
             "examples": [
                 "$assignReviewer([\"john\"])",
                 "$assignReviewer($team(\"devops\"), 3)",
