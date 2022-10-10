@@ -110,7 +110,7 @@
                     "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
                 },
                 "extra-actions": {
-                    "description": "List of all extra action to be run then the defined rules are met. This extra action run after the action defined in the workflow.",
+                    "description": "List of all extra action to be run when the defined rules are met. This extra action run after the action defined in the workflow.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/action"
@@ -159,7 +159,7 @@
             "additionalProperties": false
         },
         "pipeline": {
-            "description": "A pipeline specifies a set of stages where each contain a set of actions to be executed if the until clause evaluation is false. A pipeline only runs if it is triggered.",
+            "description": "A pipeline specifies a set of stages where each contain a set of actions to be executed while the until clause evaluation is false. A pipeline only runs if it is triggered.",
             "type": "object",
             "properties": {
                 "name": {
@@ -168,15 +168,15 @@
                     "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
                 },
                 "trigger": {
-                    "description": "A pipeline is running if and only if the trigger is empty or the rule that is specified is true.",
+                    "description": "A pipeline is running if and only if the trigger is empty or the rule that is specified in it is true.",
                     "type": "string"
                 },
                 "stages": {
-                    "description": "For each stage, we can specify references to multiple actions that will be executed as far as the until clause is empty or the evaluation of the rule specified is false. When a pipeline is running, only one of the stages will be executed.",
+                    "description": "For each stage, we can specify references to multiple actions that will be executed as far as the until clause is empty or the evaluation of the rule specified in it is false. When a pipeline is running, only one of the stages will be executed.",
                     "type": "object",
                     "properties": {
                         "actions": {
-                            "description": "The set of actions to be executed when the evaluation of the rule specified in the until clause is false.",
+                            "description": "The set of actions to be executed while the evaluation of the rule specified in the until clause is false.",
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/actions"
