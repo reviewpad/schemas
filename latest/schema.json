@@ -105,12 +105,12 @@
             "type": "object",
             "properties": {
                 "rule": {
-                    "description": "Rule to be meet. This rule must the defined in 'rules', otherwise an error will be triggered.",
+                    "description": "Rule to be met. This rule must the defined in 'rules', otherwise an error will be triggered.",
                     "type": "string",
                     "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
                 },
                 "extra-actions": {
-                    "description": "List of all extra action to be run then the defined rules are meet. This extra action run after the action defined in the workflow.",
+                    "description": "List of all extra action to be run then the defined rules are met. This extra action run after the action defined in the workflow.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/action"
@@ -159,7 +159,7 @@
             "additionalProperties": false
         },
         "pipeline": {
-            "description": "A pipeline specifies a set of stages that need to be meet in order to run a defined set of actions.",
+            "description": "A pipeline specifies a set of stages where each contain a set of actions to be executed if the until clause evaluation is false. A pipeline only runs if it is triggered.",
             "type": "object",
             "properties": {
                 "name": {
@@ -172,7 +172,7 @@
                     "type": "string"
                 },
                 "stages": {
-                    "description": "For each stage, we can specify references to multiple actions that will be executed as far as the until clause is empty or the evaluation of the rule specified is false.",
+                    "description": "For each stage, we can specify references to multiple actions that will be executed as far as the until clause is empty or the evaluation of the rule specified is false. When a pipeline is running, only one of the stages will be executed.",
                     "type": "object",
                     "properties": {
                         "actions": {
