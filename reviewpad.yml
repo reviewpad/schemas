@@ -1,7 +1,5 @@
 api-version: reviewpad.com/v3.x
 
-mode: silent
-
 labels:
   small:
     description: Small changes
