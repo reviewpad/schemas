@@ -7,4 +7,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Reviewpad
-        uses: reviewpad/action@v2.x
+        uses: reviewpad/action@v3.x
