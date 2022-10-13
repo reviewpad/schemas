@@ -179,7 +179,7 @@
                             "description": "The set of actions to be executed while the evaluation of the rule specified in the until clause is false.",
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/actions"
+                                "$ref": "#/definitions/action"
                             },
                             "minItems": 1
                         },
