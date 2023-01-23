@@ -6,7 +6,7 @@
             "type": "object",
             "properties": {
                 "url": {
-                    "description": "Url to another reviewpad.yml configuration file",
+                    "description": "Url to another reviewpad.yml configuration file.",
                     "type": "string",
                     "pattern": "\\.(yml|yaml)$",
                     "examples": [
@@ -16,17 +16,47 @@
                 }
             }
         },
+        "extend": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "description": "Url of a GitHub blob that represents another reviewpad.yml configuration file.",
+                    "type": "string",
+                    "pattern": "((https|http):\\/\\/)?github\\.com\\/[^ \"]+\\/[^ \"]+\\/blob\\/[^ \"]+\\/[^ \"]+.(yml|yaml)$",
+                    "examples": [
+                        "https://github.com/OWNER/REPO/blob/BRANCH/reviewpad.yml"
+                    ]
+                }
+            }
+        },
         "action": {
             "description": "Action to run. This action needs to be an aladino built-in function.",
             "type": "string",
             "pattern": ">?\\s*\\$[a-zA-Z]*\\((.|\\s)*\\)",
             "examples": [
+                "$addLabel(\"large\")",
+                "$addToProject(\"reviewpad\", \"in progress\")",
+                "$assignAssignees([\"john\", \"marie\", \"peter\"])",
+                "$assignRandomReviewer()",
                 "$assignReviewer([\"john\"])",
                 "$assignReviewer($team(\"devops\"), 3)",
-                "$assignRandomReviewer()",
-                "$addLabel(\"large\")",
+                "$assignTeamReviewer([\"core\", \"support\"])",
+                "$close()",
+                "$comment(\"This pull request has git conflicts. Please resolve them.\")",
+                "$commentOnce(\"This is your first contribution! Thank you!\")",
+                "$commitLint()",
+                "$deleteHeadBranch()",
+                "$disableActions([\"assignReviewer\"])",
+                "$error(\"Please do not touch these files.\")",
+                "$fail(\"Missing specs\")",
+                "$info(\"Please do not forget to add the tests.\")",
+                "$merge(\"rebase\")",
                 "$removeLabel(\"medium\")",
-                "$merge(\"rebase\")"
+                "$removeLabels([\"bug\", \"p1\"])",
+                "$review(\"REQUEST-CHANGES\", \"Please include the tests for your change\")",
+                "$setProjectField(\"jupiter\", \"notes\", \"missing issue\")",
+                "$triggerWorkflow(\"main.yml\")",
+                "$warn(\"Please do not forget to add the tests.\")"
             ]
         },
         "label": {
@@ -42,8 +72,12 @@
                     "type": "string"
                 },
                 "color": {
-                    "description": "The hexadecimal color code for the label, without the leading #.",
-                    "type": "string"
+                    "description": "The hexadecimal color code for the label, with or without the leading #.",
+                    "type": "string",
+                    "examples": [
+                        "\"#8a2151\"",
+                        "d2697a"
+                    ]
                 }
             },
             "required": [],
@@ -54,7 +88,7 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "description": "Name of the rule. Used to identify the rule.",
+                    "description": "The name of the rule that is used to identify the rule.",
                     "type": "string",
                     "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
                 },
@@ -66,30 +100,42 @@
                     "description": "The kind of a rule. The kind is related to different properties of pull requests that will be used in the evaluation of the 'spec' field.",
                     "type": "string",
                     "enum": [
-                        "patch"
+                        "patch",
+                        "author"
                     ]
                 },
                 "spec": {
                     "description": "The spec is a boolean expression in a domain specific language called Aladino (Portuguese translation of Aladdin).",
                     "type": "string",
                     "examples": [
-                        "$author() == \"john\"",
-                        "$reviewers() != []",
+                        "$any($reviewers(), ($r: String => $reviewerStatus($r) == \"APPROVED\"))",
+                        "$approvalsCount() > 2",
                         "$assignees() == [\"john\"]",
-                        "$labels() == [\"feat\"]",
+                        "$author() == \"john\"",
+                        "$base() == \"stage\"",
+                        "$changed(\"src/@1.java\", \"test/@1.java\")",
+                        "$checkRunConclusion(\"build\") == \"success\"",
+                        "$comment(\"Missing tests\")",
+                        "$contains($title(), \"bug\")",
                         "$fileCount() > 5",
-                        "$size() > 100",
-                        "$hasFileName(\"main.js\")",
+                        "$hasGitConflicts()",
+                        "$hasAnnotation(\"critical\")",
+                        "$hasCodePattern(\"placeBet\\(.*\\)\")",
                         "$hasFileExtensions([\".test.ts\"])",
+                        "$hasFileName(\"main.js\")",
                         "$hasLinearHistory()",
                         "$hasLinkedIssues()",
-                        "$hasCodePattern(\"placeBet\\(.*\\)\")",
-                        "$hasAnnotation(\"critical\")",
+                        "$hasRequiredApprovals(2, [\"john\", \"jane\", \"peter\"])",
+                        "$isBinary(\"folder/filename\")",
                         "$isDraft()",
                         "$isElementOf($author(), $team(\"devops\"))",
-                        "$contains($title(), \"bug\")",
-                        "$comment(\"Missing tests\")",
-                        "$changed(\"src/@1.java\", \"test/@1.java\")"
+                        "$join([\"alice\", \"bob\"], ", ") ",
+                        "$labels() == [\"feat\"]",
+                        "$reviewers() != []",
+                        "$selectFromJSON($toJSON(\"[1, 2, 3]\"), \"$[0]\")",
+                        "$selectFromContext(\"$.title\")",
+                        "$size() > 100",
+                        "$toBool(\"true\")"
                     ]
                 }
             },
@@ -101,16 +147,16 @@
             "additionalProperties": false
         },
         "if": {
-            "description": "Defines a set of rules. It can also specify a set o extra actions to run when the rules are true.",
+            "description": "Defines a set of rules. It can also specify a set of extra actions to run when the rules are true.",
             "type": "object",
             "properties": {
                 "rule": {
-                    "description": "Rule to be met. This rule must the defined in 'rules', otherwise an error will be triggered.",
+                    "description": "Rule to be met. This rule can be one of the rules defined in 'rules' or it can be an inline rule.",
                     "type": "string",
                     "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
                 },
                 "extra-actions": {
-                    "description": "List of all extra action to be run when the defined rules are met. This extra action run after the action defined in the workflow.",
+                    "description": "List of extra actions that will be executed if the rule is met.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/action"
@@ -137,7 +183,7 @@
                     "type": "string"
                 },
                 "if": {
-                    "description": "In the if field, we can specify references to multiple rules. For each rule, we can also specify a list of extra actions that will be executed if this rule is activated by the pull request.",
+                    "description": "In the if field, we can specify references to multiple rules. For each rule, we can also specify a list of extra actions that will be executed if this rule is triggered.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/if"
@@ -204,7 +250,7 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "description": "Name of the group. Used to identify the group.",
+                    "description": "The name of the group that is used to identify the group.",
                     "type": "string",
                     "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
                 },
@@ -220,7 +266,7 @@
                     ]
                 },
                 "spec": {
-                    "description": "The spec is an expression in a domain specific language called Aladino that is evaluated to an array of users.",
+                    "description": "The spec is an expression in a domain specific language called Aladino (Portuguese translation of Aladdin) that is evaluated to an array of users.",
                     "type": "string",
                     "examples": [
                         "'[\"john\", \"jane\"]'"
@@ -239,7 +285,7 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "description": "Name of the group. Used to identify the group.",
+                    "description": "The name of the group that is used to identify the group.",
                     "type": "string",
                     "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
                 },
@@ -262,14 +308,14 @@
                     ]
                 },
                 "param": {
-                    "description": "Param describes the parameter name to be used on the 'spec' expression.",
+                    "description": "The 'param' describes the parameter name to be used on the 'spec' expression.",
                     "type": "string",
                     "examples": [
                         "$dev"
                     ]
                 },
                 "where": {
-                    "description": "The where is an expression in a domain specific language called Aladino that is evaluated to an array of users.",
+                    "description": "The 'where' is an expression in a domain specific language called Aladino (Portuguese translation of Aladdin) that is evaluated to an array of users.",
                     "type": "string",
                     "examples": [
                         "$totalCreatedPullRequests($dev) < 10"
@@ -288,38 +334,46 @@
     },
     "properties": {
         "api-version": {
-            "description": "The version of revy to be used. You can set the value to 'reviewpad.com/v1alpha'.",
+            "description": "The version of Reviewpad to be used. You can set the value to 'reviewpad.com/v3.x'.",
             "type": "string",
             "examples": [
                 "reviewpad.com/v1.x"
             ]
         },
         "mode": {
-            "description": "The mode in which reviewpad will run. 'verbose' to add a comment on the pull request with the triggered workflows. 'silent' to run without any comment. By default the mode is 'silent'",
+            "description": "The mode in which Reviewpad will run. 'verbose' to add a comment on the pull request with the triggered workflows. 'silent' to run without any comment. By default, the mode is 'silent'.",
             "type": "string",
             "enum": [
                 "silent",
                 "verbose"
             ]
         },
-        "edition": {
-            "description": "The edition in which reviewpad will run. 'team' to benefit from the open source built-ins. 'professional' to benefit from all the built-ins available in the documentation. By default the mode is 'team'",
-            "type": "string",
-            "enum": [
-                "team",
-                "professional"
-            ]
+        "ignore-errors": {
+            "description": "Specifies if Reviewpad should ignore execution errors. By default, this flag is 'false' which means that Reviewpad will fail if an error is raised.",
+            "type": "boolean"
+        },
+        "metrics-on-merge": {
+            "description": "Specifies if Reviewpad should add a metrics report when the pull request is merged. By default, this flag is 'false' which means that Reviewpad will not add this report.",
+            "type": "boolean"
         },
         "imports": {
-            "description": "List of all imports to be loaded. This is used in order to allow to split configuration files and use them across different projects.",
+            "description": "List of imports to be loaded. This is used in order to allow split configuration files and use them across different projects.",
             "type": "array",
             "items": {
                 "$ref": "#/definitions/import"
             },
             "minItems": 1
         },
+        "extends": {
+            "description": "List of other Reviewpad configuration files as GitHub blob URLs. This allows the ability to share common specifications for all the flags, labels, rules, and workflows from multiple GitHub repositories with the possibility to override the inherited configurations.",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/extend"
+            },
+            "minItems": 1
+        },
         "labels": {
-            "description": "List labels to be used. Labels that do not exist in the project will be created using the provided color and description",
+            "description": "List of labels to be used. Labels that do not exist in the project will be created using the provided color and description.",
             "type": "object",
             "patternProperties": {
                 "^[_a-zA-Z][a-zA-Z0-9_-]*$": {
@@ -330,7 +384,7 @@
             "additionalProperties": false
         },
         "rules": {
-            "description": "List of all rules that will be used in the workflows. All rules defined here should be used, otherwise an error will be triggered.",
+            "description": "List of rules that will be used in the workflows. All rules defined here should be used, otherwise, an error will be triggered.",
             "type": "array",
             "items": {
                 "$ref": "#/definitions/rule"
@@ -339,7 +393,7 @@
             "additionalProperties": false
         },
         "workflows": {
-            "description": "List of all workflows. A workflow is tested against the selected rules and if all rules evaluate to true, then all defined actions run.",
+            "description": "List of workflows. A workflow is tested against the selected rules and if all rules evaluate to true, then all defined actions run.",
             "type": "array",
             "items": {
                 "$ref": "#/definitions/workflow"
@@ -347,7 +401,7 @@
             "minItems": 1
         },
         "groups": {
-            "description": "List of all groups. A group corresponds to a set of users in the repo where the pull request occurs.",
+            "description": "List of groups. A group corresponds to a set of users in the repo where the pull request occurs.",
             "type": "array",
             "items": {
                 "oneOf": [
