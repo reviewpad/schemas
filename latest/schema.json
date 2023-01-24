@@ -53,7 +53,7 @@
                 "$merge(\"rebase\")",
                 "$removeLabel(\"medium\")",
                 "$removeLabels([\"bug\", \"p1\"])",
-                "$review(\"REQUEST-CHANGES\", \"Please include the tests for your change\")",
+                "$review(\"REQUEST_CHANGES\", \"Please include the tests for your change\")",
                 "$setProjectField(\"jupiter\", \"notes\", \"missing issue\")",
                 "$triggerWorkflow(\"main.yml\")",
                 "$warn(\"Please do not forget to add the tests.\")"
