@@ -22,9 +22,10 @@
                 "url": {
                     "description": "Url of a GitHub blob that represents another reviewpad.yml configuration file.",
                     "type": "string",
-                    "pattern": "((https|http):\\/\\/)?github\\.com\\/[^ \"]+\\/[^ \"]+\\/blob\\/[^ \"]+\\/[^ \"]+.(yml|yaml)$",
+                    "pattern": "((https|http):\\/\\/)?github\\.com\\/[^ \"]+\\/[^ \"]+\\/blob\\/[^ \"]+(\\/[^ \"]+)?\\/[^ \"]+.(yml|yaml)$",
                     "examples": [
-                        "https://github.com/OWNER/REPO/blob/BRANCH/reviewpad.yml"
+                        "https://github.com/reviewpad/.github/blob/main/reviewpad-models/common.yml",
+                        "https://github.com/reviewpad/reviewpad/blob/main/reviewpad.yml"
                     ]
                 }
             }
@@ -129,7 +130,8 @@
                         "$isBinary(\"folder/filename\")",
                         "$isDraft()",
                         "$isElementOf($author(), $team(\"devops\"))",
-                        "$join([\"alice\", \"bob\"], ", ") ",
+                        "$join([\"alice\", \"bob\"], ",
+                        ") ",
                         "$labels() == [\"feat\"]",
                         "$reviewers() != []",
                         "$selectFromJSON($toJSON(\"[1, 2, 3]\"), \"$[0]\")",
