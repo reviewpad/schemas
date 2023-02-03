@@ -16,7 +16,7 @@
                 }
             }
         },
-        "extend": {
+        "extendedFile": {
             "type": "object",
             "properties": {
                 "url": {
@@ -81,7 +81,6 @@
                     ]
                 }
             },
-            "required": [],
             "additionalProperties": false
         },
         "rule": {
@@ -143,7 +142,6 @@
             },
             "required": [
                 "name",
-                "kind",
                 "spec"
             ],
             "additionalProperties": false
@@ -184,6 +182,17 @@
                     "description": "The description can be used to provide more details about the workflow.",
                     "type": "string"
                 },
+                "always-run": {
+                    "type": "boolean"
+                },
+                "on": {
+                    "description": "List of GitHub entity types that should trigger the workflow. By default, the value is pull_request.",
+                    "type": "string",
+                    "enum": [
+                        "pull_request",
+                        "issue"
+                    ]
+                },
                 "if": {
                     "description": "In the if field, we can specify references to multiple rules. For each rule, we can also specify a list of extra actions that will be executed if this rule is triggered.",
                     "type": "array",
@@ -199,11 +208,12 @@
                         "$ref": "#/definitions/action"
                     },
                     "minItems": 1
-                },
-                "always-run": {
-                    "type": "boolean"
                 }
             },
+            "required": [
+                "name",
+                "if"
+            ],
             "additionalProperties": false
         },
         "pipeline": {
@@ -214,6 +224,10 @@
                     "description": "The pipeline name.",
                     "type": "string",
                     "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                },
+                "description": {
+                    "description": "The description can be used to provide more details about the pipeline.",
+                    "type": "string"
                 },
                 "trigger": {
                     "description": "A pipeline is running if and only if the trigger is empty or the rule that is specified in it is true.",
@@ -339,7 +353,7 @@
             "description": "The version of Reviewpad to be used. You can set the value to 'reviewpad.com/v3.x'.",
             "type": "string",
             "examples": [
-                "reviewpad.com/v1.x"
+                "reviewpad.com/v3.x"
             ]
         },
         "mode": {
@@ -370,7 +384,7 @@
             "description": "List of other Reviewpad configuration files as GitHub blob URLs. This allows the ability to share common specifications for all the flags, labels, rules, and workflows from multiple GitHub repositories with the possibility to override the inherited configurations.",
             "type": "array",
             "items": {
-                "$ref": "#/definitions/extend"
+                "$ref": "#/definitions/extendedFile"
             },
             "minItems": 1
         },
@@ -391,7 +405,7 @@
             "items": {
                 "$ref": "#/definitions/rule"
             },
-            "minProperties": 1,
+            "minItems": 1,
             "additionalProperties": false
         },
         "workflows": {
@@ -415,7 +429,7 @@
                     }
                 ]
             },
-            "minProperties": 1,
+            "minItems": 1,
             "additionalProperties": false
         },
         "additionalProperties": false
