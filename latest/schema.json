@@ -76,7 +76,7 @@
                     "description": "The hexadecimal color code for the label, with or without the leading #.",
                     "type": "string",
                     "examples": [
-                        "\"#8a2151\"",
+                        "#8a2151",
                         "d2697a"
                     ]
                 }
@@ -190,6 +190,7 @@
                     "type": "string"
                 },
                 "always-run": {
+                    "description": "Specifies if the workflow should run regardless of whether the previous workflows ran or not. By default, this field is false.",
                     "type": "boolean"
                 },
                 "on": {
