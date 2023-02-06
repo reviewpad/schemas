@@ -107,7 +107,6 @@
                 "spec": {
                     "description": "The spec is a boolean expression in a domain specific language called Aladino (Portuguese translation of Aladdin).",
                     "type": "string",
-                    "pattern": "^!?\\$[a-zA-Z_][a-zA-Z0-9_-]*\\((.|\\s)*(,(.|\\s)*)*\\)$",
                     "examples": [
                         "$any($reviewers(), ($r: String => $reviewerStatus($r) == \"APPROVED\"))",
                         "$approvalsCount() > 2",
