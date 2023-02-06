@@ -33,7 +33,7 @@
         "action": {
             "description": "Action to run. This action needs to be an aladino built-in function.",
             "type": "string",
-            "pattern": "^!?\\$[a-zA-Z][a-zA-Z0-9-]*\\(([0-9]*|(\".*\"))?\\)",
+            "pattern": "^\\$[a-zA-Z][a-zA-Z0-9-]*\\(.*\\)",
             "examples": [
                 "$addLabel(\"large\")",
                 "$addToProject(\"reviewpad\", \"in progress\")",
@@ -129,8 +129,7 @@
                         "$isBinary(\"folder/filename\")",
                         "$isDraft()",
                         "$isElementOf($author(), $team(\"devops\"))",
-                        "$join([\"alice\", \"bob\"], ",
-                        ") ",
+                        "$join([\"alice\", \"bob\"], \" \") ",
                         "$labels() == [\"feat\"]",
                         "$reviewers() != []",
                         "$selectFromJSON($toJSON(\"[1, 2, 3]\"), \"$[0]\")",
@@ -153,7 +152,7 @@
                 "rule": {
                     "description": "Rule to be met. This rule can be one of the rules defined in 'rules' or it can be an inline rule.",
                     "type": "string",
-                    "pattern": "(^!?\\$[a-zA-Z][a-zA-Z0-9-_]*\\(([0-9]*|(\".*\"))?\\))(\\s(&&|\\|\\|)\\s\\!?\\$[a-zA-Z][a-zA-Z0-9-_]*\\(([0-9]*|(\".*\"))?\\)$)?"
+                    "pattern": "([a-zA-Z][a-zA-Z0-9-_]*)|(^!?\\$[a-zA-Z][a-zA-Z0-9-_]*\\(.*\\))(\\s(&&|\\|\\|)\\s\\!?\\$[a-zA-Z][a-zA-Z0-9-_]*\\(.*\\)$)?"
                 },
                 "extra-actions": {
                     "description": "List of extra actions that will be executed if the rule is met.",
