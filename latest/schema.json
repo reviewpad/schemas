@@ -16,7 +16,7 @@
                 }
             }
         },
-        "extend": {
+        "extendedFile": {
             "type": "object",
             "properties": {
                 "url": {
@@ -33,7 +33,7 @@
         "action": {
             "description": "Action to run. This action needs to be an aladino built-in function.",
             "type": "string",
-            "pattern": ">?\\s*\\$[a-zA-Z]*\\((.|\\s)*\\)",
+            "pattern": "^\\$[a-zA-Z_][a-zA-Z0-9_-]*\\((.|\\s)*(,(.|\\s)*)*\\)$",
             "examples": [
                 "$addLabel(\"large\")",
                 "$addToProject(\"reviewpad\", \"in progress\")",
@@ -76,12 +76,11 @@
                     "description": "The hexadecimal color code for the label, with or without the leading #.",
                     "type": "string",
                     "examples": [
-                        "\"#8a2151\"",
+                        "#8a2151",
                         "d2697a"
                     ]
                 }
             },
-            "required": [],
             "additionalProperties": false
         },
         "rule": {
@@ -130,8 +129,7 @@
                         "$isBinary(\"folder/filename\")",
                         "$isDraft()",
                         "$isElementOf($author(), $team(\"devops\"))",
-                        "$join([\"alice\", \"bob\"], ",
-                        ") ",
+                        "$join([\"alice\", \"bob\"], \" \") ",
                         "$labels() == [\"feat\"]",
                         "$reviewers() != []",
                         "$selectFromJSON($toJSON(\"[1, 2, 3]\"), \"$[0]\")",
@@ -143,7 +141,6 @@
             },
             "required": [
                 "name",
-                "kind",
                 "spec"
             ],
             "additionalProperties": false
@@ -155,7 +152,7 @@
                 "rule": {
                     "description": "Rule to be met. This rule can be one of the rules defined in 'rules' or it can be an inline rule.",
                     "type": "string",
-                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                    "pattern": "([a-zA-Z][a-zA-Z0-9-_]*)|(^!?\\$[a-zA-Z_][a-zA-Z0-9_-]*\\((.|\\s)*(,(.|\\s)*)*\\)$)?"
                 },
                 "extra-actions": {
                     "description": "List of extra actions that will be executed if the rule is met.",
@@ -171,6 +168,14 @@
             ],
             "additionalProperties": false
         },
+        "entityType": {
+            "description": "GitHub entity type that should trigger the workflow",
+            "type": "string",
+            "enum": [
+                "pull_request",
+                "issue"
+            ]
+        },
         "workflow": {
             "description": "A workflow specifies a set of rules that need to be met in order to run a defined set of actions.",
             "type": "object",
@@ -183,6 +188,17 @@
                 "description": {
                     "description": "The description can be used to provide more details about the workflow.",
                     "type": "string"
+                },
+                "always-run": {
+                    "description": "Specifies if the workflow should run regardless of whether the previous workflows ran or not. By default, this field is false.",
+                    "type": "boolean"
+                },
+                "on": {
+                    "description": "List of GitHub entity types that should trigger the workflow. By default, the value is pull_request.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entityType"
+                    }
                 },
                 "if": {
                     "description": "In the if field, we can specify references to multiple rules. For each rule, we can also specify a list of extra actions that will be executed if this rule is triggered.",
@@ -199,11 +215,12 @@
                         "$ref": "#/definitions/action"
                     },
                     "minItems": 1
-                },
-                "always-run": {
-                    "type": "boolean"
                 }
             },
+            "required": [
+                "name",
+                "if"
+            ],
             "additionalProperties": false
         },
         "pipeline": {
@@ -214,6 +231,10 @@
                     "description": "The pipeline name.",
                     "type": "string",
                     "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                },
+                "description": {
+                    "description": "The description can be used to provide more details about the pipeline.",
+                    "type": "string"
                 },
                 "trigger": {
                     "description": "A pipeline is running if and only if the trigger is empty or the rule that is specified in it is true.",
@@ -339,7 +360,7 @@
             "description": "The version of Reviewpad to be used. You can set the value to 'reviewpad.com/v3.x'.",
             "type": "string",
             "examples": [
-                "reviewpad.com/v1.x"
+                "reviewpad.com/v3.x"
             ]
         },
         "mode": {
@@ -370,7 +391,7 @@
             "description": "List of other Reviewpad configuration files as GitHub blob URLs. This allows the ability to share common specifications for all the flags, labels, rules, and workflows from multiple GitHub repositories with the possibility to override the inherited configurations.",
             "type": "array",
             "items": {
-                "$ref": "#/definitions/extend"
+                "$ref": "#/definitions/extendedFile"
             },
             "minItems": 1
         },
@@ -391,7 +412,7 @@
             "items": {
                 "$ref": "#/definitions/rule"
             },
-            "minProperties": 1,
+            "minItems": 1,
             "additionalProperties": false
         },
         "workflows": {
@@ -415,7 +436,7 @@
                     }
                 ]
             },
-            "minProperties": 1,
+            "minItems": 1,
             "additionalProperties": false
         },
         "additionalProperties": false
