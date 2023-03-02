@@ -362,13 +362,6 @@
         }
     },
     "properties": {
-        "api-version": {
-            "description": "The version of Reviewpad to be used. You can set the value to 'reviewpad.com/v3.x'.",
-            "type": "string",
-            "examples": [
-                "reviewpad.com/v3.x"
-            ]
-        },
         "mode": {
             "description": "The mode in which Reviewpad will run. 'verbose' to add a comment on the pull request with the triggered workflows. 'silent' to run without any comment. By default, the mode is 'silent'.",
             "type": "string",
@@ -455,8 +448,5 @@
         },
         "additionalProperties": false
     },
-    "required": [
-        "api-version"
-    ],
     "additionalProperties": false
 }
