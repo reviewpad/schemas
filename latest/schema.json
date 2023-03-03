@@ -298,7 +298,6 @@
             },
             "required": [
                 "name",
-                "kind",
                 "spec"
             ],
             "additionalProperties": false
