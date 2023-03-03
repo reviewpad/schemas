@@ -17,18 +17,13 @@
             }
         },
         "extendedFile": {
-            "type": "object",
-            "properties": {
-                "url": {
-                    "description": "Url of a GitHub blob that represents another reviewpad.yml configuration file.",
-                    "type": "string",
-                    "pattern": "^((https|http):\\/\\/)?github\\.com\\/[^ \"]+\\/[^ \"]+\\/blob\\/[^ \"]+(\\/[^ \"]+)?\\/[^ \"]+.(yml|yaml)$",
-                    "examples": [
-                        "https://github.com/reviewpad/.github/blob/main/reviewpad-models/common.yml",
-                        "https://github.com/reviewpad/reviewpad/blob/main/reviewpad.yml"
-                    ]
-                }
-            }
+            "type": "string",
+            "description": "Url of a GitHub blob that represents another reviewpad.yml configuration file.",
+            "pattern": "((https|http):\\/\\/)?github\\.com\\/[^ \"]+\\/[^ \"]+\\/blob\\/[^ \"]+(\\/[^ \"]+)?\\/[^ \"]+.(yml|yaml)$",
+            "examples": [
+                "https://github.com/reviewpad/.github/blob/main/reviewpad-models/common.yml",
+                "https://github.com/reviewpad/reviewpad/blob/main/reviewpad.yml"
+            ]
         },
         "action": {
             "description": "Action to run. This action needs to be an aladino built-in function.",
@@ -162,9 +157,6 @@
                     "minItems": 1
                 }
             },
-            "required": [
-                "rule"
-            ],
             "additionalProperties": false
         },
         "entityType": {
@@ -241,7 +233,8 @@
             },
             "required": [
                 "actions"
-            ]
+            ],
+            "additionalProperties": false
         },
         "pipeline": {
             "description": "A pipeline specifies a set of stages where each contain a set of actions to be executed while the until clause evaluation is false. A pipeline only runs if it is triggered.",
@@ -262,6 +255,7 @@
                 },
                 "stages": {
                     "type": "array",
+                    "description": "List of stages of the pipeline. Each stage is a list of actions that will execute until the `until` condition is true.",
                     "items": {
                         "$ref": "#/definitions/stage"
                     },
