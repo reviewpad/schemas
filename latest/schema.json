@@ -222,6 +222,27 @@
             ],
             "additionalProperties": false
         },
+        "stage": {
+            "description": "A stage is a list of actions that will execute until the `until` condition is true.",
+            "type": "object",
+            "properties": {
+                "actions": {
+                    "description": "The set of actions to be executed while the evaluation of the rule specified in the until clause is false.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/action"
+                    },
+                    "minItems": 1
+                },
+                "until": {
+                    "description": "The rule to be met in order for the execution of the set of actions stop.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "actions"
+            ]
+        },
         "pipeline": {
             "description": "A pipeline specifies a set of stages where each contain a set of actions to be executed while the until clause evaluation is false. A pipeline only runs if it is triggered.",
             "type": "object",
@@ -240,25 +261,11 @@
                     "type": "string"
                 },
                 "stages": {
-                    "description": "For each stage, we can specify references to multiple actions that will be executed as far as the until clause is empty or the evaluation of the rule specified in it is false. When a pipeline is running, only one of the stages will be executed.",
-                    "type": "object",
-                    "properties": {
-                        "actions": {
-                            "description": "The set of actions to be executed while the evaluation of the rule specified in the until clause is false.",
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/action"
-                            },
-                            "minItems": 1
-                        },
-                        "until": {
-                            "description": "The rule to be met in order for the execution of the set of actions stop.",
-                            "type": "string"
-                        }
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/stage"
                     },
-                    "required": [
-                        "actions"
-                    ]
+                    "minItems": 1
                 }
             },
             "required": [
