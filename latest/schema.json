@@ -17,18 +17,13 @@
             }
         },
         "extendedFile": {
-            "type": "object",
-            "properties": {
-                "url": {
-                    "description": "Url of a GitHub blob that represents another reviewpad.yml configuration file.",
-                    "type": "string",
-                    "pattern": "((https|http):\\/\\/)?github\\.com\\/[^ \"]+\\/[^ \"]+\\/blob\\/[^ \"]+(\\/[^ \"]+)?\\/[^ \"]+.(yml|yaml)$",
-                    "examples": [
-                        "https://github.com/reviewpad/.github/blob/main/reviewpad-models/common.yml",
-                        "https://github.com/reviewpad/reviewpad/blob/main/reviewpad.yml"
-                    ]
-                }
-            }
+            "type": "string",
+            "description": "Url of a GitHub blob that represents another reviewpad.yml configuration file.",
+            "pattern": "((https|http):\\/\\/)?github\\.com\\/[^ \"]+\\/[^ \"]+\\/blob\\/[^ \"]+(\\/[^ \"]+)?\\/[^ \"]+.(yml|yaml)$",
+            "examples": [
+                "https://github.com/reviewpad/.github/blob/main/reviewpad-models/common.yml",
+                "https://github.com/reviewpad/reviewpad/blob/main/reviewpad.yml"
+            ]
         },
         "action": {
             "description": "Action to run. This action needs to be an aladino built-in function.",
@@ -147,26 +142,32 @@
         },
         "if": {
             "description": "Defines a set of rules. It can also specify a set of extra actions to run when the rules are true.",
-            "type": "object",
-            "properties": {
-                "rule": {
-                    "description": "Rule to be met. This rule can be one of the rules defined in 'rules' or it can be an inline rule.",
-                    "type": "string",
-                    "pattern": "([a-zA-Z][a-zA-Z0-9-_]*)|(^!?\\$[a-zA-Z_][a-zA-Z0-9_-]*\\((.|\\s)*(,(.|\\s)*)*\\)$)?"
+            "anyOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "rule": {
+                            "description": "Rule to be met. This rule can be one of the rules defined in 'rules' or it can be an inline rule.",
+                            "type": "string"
+                        },
+                        "extra-actions": {
+                            "description": "List of extra actions that will be executed if the rule is met.",
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/action"
+                            },
+                            "minItems": 1
+                        }
+                    },
+                    "additionalProperties": false
                 },
-                "extra-actions": {
-                    "description": "List of extra actions that will be executed if the rule is met.",
+                {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/action"
-                    },
-                    "minItems": 1
+                        "type": "string"
+                    }
                 }
-            },
-            "required": [
-                "rule"
-            ],
-            "additionalProperties": false
+            ]
         },
         "entityType": {
             "description": "GitHub entity type that should trigger the workflow",
@@ -223,8 +224,30 @@
             ],
             "additionalProperties": false
         },
+        "stage": {
+            "description": "A stage is a list of actions that will execute until the `until` condition is true.",
+            "type": "object",
+            "properties": {
+                "actions": {
+                    "description": "The set of actions to be executed while the evaluation of the rule specified in the until clause is false.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/action"
+                    },
+                    "minItems": 1
+                },
+                "until": {
+                    "description": "The rule to be met in order for the execution of the set of actions to stop.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "actions"
+            ],
+            "additionalProperties": false
+        },
         "pipeline": {
-            "description": "A pipeline specifies a set of stages where each contain a set of actions to be executed while the until clause evaluation is false. A pipeline only runs if it is triggered.",
+            "description": "A pipeline specifies a set of stages where each contains a set of actions to execute while the until clause evaluation is false. A pipeline only runs if it is triggered.",
             "type": "object",
             "properties": {
                 "name": {
@@ -241,25 +264,12 @@
                     "type": "string"
                 },
                 "stages": {
-                    "description": "For each stage, we can specify references to multiple actions that will be executed as far as the until clause is empty or the evaluation of the rule specified in it is false. When a pipeline is running, only one of the stages will be executed.",
-                    "type": "object",
-                    "properties": {
-                        "actions": {
-                            "description": "The set of actions to be executed while the evaluation of the rule specified in the until clause is false.",
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/action"
-                            },
-                            "minItems": 1
-                        },
-                        "until": {
-                            "description": "The rule to be met in order for the execution of the set of actions stop.",
-                            "type": "string"
-                        }
+                    "type": "array",
+                    "description": "List of stages of the pipeline. Each stage is a list of actions to be executed while the `until` condition is evaluated to false.",
+                    "items": {
+                        "$ref": "#/definitions/stage"
                     },
-                    "required": [
-                        "actions"
-                    ]
+                    "minItems": 1
                 }
             },
             "required": [
@@ -298,7 +308,6 @@
             },
             "required": [
                 "name",
-                "kind",
                 "spec"
             ],
             "additionalProperties": false
@@ -438,6 +447,14 @@
             },
             "minItems": 1,
             "additionalProperties": false
+        },
+        "pipelines": {
+            "description": "List of pipelines. A pipeline specifies a set of stages where each contains a set of actions to execute while the until clause evaluation is false. A pipeline only runs if it is triggered.",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/pipeline"
+            },
+            "minItems": 1
         },
         "additionalProperties": false
     },
