@@ -367,7 +367,8 @@
             "type": "string",
             "examples": [
                 "reviewpad.com/v3.x"
-            ]
+            ],
+            "deprecated": true
         },
         "mode": {
             "description": "The mode in which Reviewpad will run. 'verbose' to add a comment on the pull request with the triggered workflows. 'silent' to run without any comment. By default, the mode is 'silent'.",
@@ -455,8 +456,5 @@
         },
         "additionalProperties": false
     },
-    "required": [
-        "api-version"
-    ],
     "additionalProperties": false
 }
