@@ -347,7 +347,7 @@
                     "description": "The 'where' is an expression in a domain specific language called Aladino (Portuguese translation of Aladdin) that is evaluated to an array of users.",
                     "type": "string",
                     "examples": [
-                        "$totalCreatedPullRequests($dev) < 10"
+                        "$pullRequestCountBy($dev,\"all\") < 10"
                     ]
                 }
             },
