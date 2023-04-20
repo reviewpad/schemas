@@ -201,20 +201,20 @@
                     }
                 },
                 "if": {
-                    "description": "In the if field, we can specify references to multiple rules. For each rule, we can also specify a list of extra actions that will be executed if this rule is triggered.",
-                    "type": "array",
+                    "description": "(Deprecated) In the if field, we can specify references to multiple rules. For each rule, we can also specify a list of extra actions that will be executed if this rule is triggered. This property is deprecated and will be removed in a future release, please have a look at the run field.",
+                    "type": ["array", "string"],
                     "items": {
                         "$ref": "#/definitions/if"
                     },
                     "minItems": 1
                 },
                 "then": {
-                    "description": "The set of actions to be executed when all rules are true.",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/action"
-                    },
-                    "minItems": 1
+                    "description": "(Deprecated) The set of actions to be executed when one of the rules are true. This property is deprecated and will be removed in a future release, please have a look at the run field.",
+                    "$ref": "#/definitions/condition-action"
+                },
+                "else": {
+                    "description": "(Deprecated) The set of actions to be executed none of the rules evaluate to true. This property is deprecated and will be removed in a future release, please have a look at the run field.",
+                    "$ref": "#/definitions/condition-action"
                 },
                 "run": {
                     "description": "The set of actions to be executed for a workflow, can be a single action, a list of actions, a conditional or a combination of all.",
