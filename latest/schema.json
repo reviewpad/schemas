@@ -232,11 +232,12 @@
             "properties": {
                 "actions": {
                     "description": "The set of actions to be executed while the evaluation of the rule specified in the until clause is false.",
-                    "type": "array",
+                    "type": ["array", "string"],
                     "items": {
                         "$ref": "#/definitions/action"
                     },
-                    "minItems": 1
+                    "minItems": 1,
+                    "minLength": 1
                 },
                 "until": {
                     "description": "The rule to be met in order for the execution of the set of actions to stop.",
