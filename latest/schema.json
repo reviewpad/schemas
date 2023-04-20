@@ -145,6 +145,7 @@
             "anyOf": [
                 {
                     "type": "object",
+                    "description": "A rule with extra actions is a deprecated feature and will be removed in a future release.",
                     "properties": {
                         "rule": {
                             "description": "Rule to be met. This rule can be one of the rules defined in 'rules' or it can be an inline rule.",
@@ -188,8 +189,9 @@
                     "type": "string"
                 },
                 "always-run": {
-                    "description": "Specifies if the workflow should run regardless of whether the previous workflows ran or not. By default, this field is false.",
-                    "type": "boolean"
+                    "description": "(Deprecated) Specifies if the workflow should run regardless of whether the previous workflows ran or not. By default, this field is false. This property is deprecated and will be removed in a future release.",
+                    "type": "boolean",
+                    "deprecated": true
                 },
                 "on": {
                     "description": "List of GitHub entity types that should trigger the workflow. By default, the value is pull_request.",
@@ -213,11 +215,14 @@
                         "$ref": "#/definitions/action"
                     },
                     "minItems": 1
+                },
+                "run": {
+                    "description": "The set of actions to be executed for a workflow, can be a single action, a list of actions, a conditional or a combination of all.",
+                    "$ref": "#/definitions/run"
                 }
             },
             "required": [
-                "name",
-                "if"
+                "name"
             ],
             "additionalProperties": false
         },
@@ -359,6 +364,43 @@
                 "where"
             ],
             "additionalProperties": false
+        },
+        "condition-action": {
+            "anyOf": [
+                {
+                  "type": "object",
+                  "$ref": "#/definitions/run"
+                },
+                {
+                  "type": ["string", "array"],
+                  "minItems": 1,
+                  "items": {
+                      "$ref": "#/definitions/run"
+                  }
+                }
+            ]
+        },
+        "run": {
+            "type": ["object", "string", "array"],
+            "minItems": 1,
+            "properties": {
+                "if": {
+                    "type": ["string", "array"],
+                    "minItems": 1,
+                    "minLength": 1,
+                    "items": {
+                        "$ref": "#/definitions/if"
+                    }
+                },
+                "then": {
+                  "$ref": "#/definitions/condition-action"
+                },
+                "else": {
+                  "$ref": "#/definitions/condition-action"
+                }
+            },
+            "additionalProperties": false,
+            "required": ["if", "then"]
         }
     },
     "properties": {
