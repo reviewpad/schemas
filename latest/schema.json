@@ -84,8 +84,7 @@
             "properties": {
                 "name": {
                     "description": "The name of the rule that is used to identify the rule.",
-                    "type": "string",
-                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                    "type": "string"
                 },
                 "description": {
                     "description": "The description can be used to provide more details about the rule.",
@@ -140,32 +139,6 @@
             ],
             "additionalProperties": false
         },
-        "if": {
-            "description": "Defines a set of rules. It can also specify a set of extra actions to run when the rules are true.",
-            "anyOf": [
-                {
-                    "type": "object",
-                    "properties": {
-                        "rule": {
-                            "description": "Rule to be met. This rule can be one of the rules defined in 'rules' or it can be an inline rule.",
-                            "type": "string"
-                        },
-                        "extra-actions": {
-                            "description": "List of extra actions that will be executed if the rule is met.",
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/action"
-                            },
-                            "minItems": 1
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                {
-                    "type": "string"
-                }
-            ]
-        },
         "entityType": {
             "description": "GitHub entity type that should trigger the workflow",
             "type": "string",
@@ -180,16 +153,11 @@
             "properties": {
                 "name": {
                     "description": "The workflow name.",
-                    "type": "string",
-                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                    "type": "string"
                 },
                 "description": {
                     "description": "The description can be used to provide more details about the workflow.",
                     "type": "string"
-                },
-                "always-run": {
-                    "description": "Specifies if the workflow should run regardless of whether the previous workflows ran or not. By default, this field is false.",
-                    "type": "boolean"
                 },
                 "on": {
                     "description": "List of GitHub entity types that should trigger the workflow. By default, the value is pull_request.",
@@ -198,26 +166,20 @@
                         "$ref": "#/definitions/entityType"
                     }
                 },
-                "if": {
-                    "description": "In the if field, we can specify references to multiple rules. For each rule, we can also specify a list of extra actions that will be executed if this rule is triggered.",
-                    "type": "array",
+                "run": {
+                    "description": "The set of actions to be executed for a workflow, can be a single action, a list of actions, a conditional or a combination of all.",
+                    "type": [
+                        "array"
+                    ],
+                    "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/if"
-                    },
-                    "minItems": 1
-                },
-                "then": {
-                    "description": "The set of actions to be executed when all rules are true.",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/action"
-                    },
-                    "minItems": 1
+                        "$ref": "#/definitions/condition-action"
+                    }
                 }
             },
             "required": [
                 "name",
-                "if"
+                "run"
             ],
             "additionalProperties": false
         },
@@ -249,8 +211,7 @@
             "properties": {
                 "name": {
                     "description": "The pipeline name.",
-                    "type": "string",
-                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                    "type": "string"
                 },
                 "description": {
                     "description": "The description can be used to provide more details about the pipeline.",
@@ -281,8 +242,7 @@
             "properties": {
                 "name": {
                     "description": "The name of the group that is used to identify the group.",
-                    "type": "string",
-                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                    "type": "string"
                 },
                 "description": {
                     "description": "The description can be used to provide more details about the group.",
@@ -315,8 +275,7 @@
             "properties": {
                 "name": {
                     "description": "The name of the group that is used to identify the group.",
-                    "type": "string",
-                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                    "type": "string"
                 },
                 "description": {
                     "description": "The description can be used to provide more details about the group.",
@@ -359,17 +318,57 @@
                 "where"
             ],
             "additionalProperties": false
+        },
+        "condition-action": {
+            "anyOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "if": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "then": {
+                            "type": [
+                                "string",
+                                "array"
+                            ],
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/definitions/condition-action"
+                            }
+                        },
+                        "else": {
+                            "type": [
+                                "string",
+                                "array"
+                            ],
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/definitions/condition-action"
+                            }
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "if",
+                        "then"
+                    ]
+                },
+                {
+                    "type": [
+                        "string",
+                        "array"
+                    ],
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/condition-action"
+                    }
+                }
+            ]
         }
     },
     "properties": {
-        "api-version": {
-            "description": "The version of Reviewpad to be used. You can set the value to 'reviewpad.com/v3.x'.",
-            "type": "string",
-            "examples": [
-                "reviewpad.com/v3.x"
-            ],
-            "deprecated": true
-        },
         "mode": {
             "description": "The mode in which Reviewpad will run. 'verbose' to add a comment on the pull request with the triggered workflows. 'silent' to run without any comment. By default, the mode is 'silent'.",
             "type": "string",
