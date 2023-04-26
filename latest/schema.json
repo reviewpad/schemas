@@ -84,8 +84,7 @@
             "properties": {
                 "name": {
                     "description": "The name of the rule that is used to identify the rule.",
-                    "type": "string",
-                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                    "type": "string"
                 },
                 "description": {
                     "description": "The description can be used to provide more details about the rule.",
@@ -140,33 +139,6 @@
             ],
             "additionalProperties": false
         },
-        "if": {
-            "description": "Defines a set of rules. It can also specify a set of extra actions to run when the rules are true.",
-            "anyOf": [
-                {
-                    "type": "object",
-                    "description": "A rule with extra actions is a deprecated feature and will be removed in a future release.",
-                    "properties": {
-                        "rule": {
-                            "description": "Rule to be met. This rule can be one of the rules defined in 'rules' or it can be an inline rule.",
-                            "type": "string"
-                        },
-                        "extra-actions": {
-                            "description": "List of extra actions that will be executed if the rule is met.",
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/action"
-                            },
-                            "minItems": 1
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                {
-                    "type": "string"
-                }
-            ]
-        },
         "entityType": {
             "description": "GitHub entity type that should trigger the workflow",
             "type": "string",
@@ -181,17 +153,11 @@
             "properties": {
                 "name": {
                     "description": "The workflow name.",
-                    "type": "string",
-                    "pattern": "^[_a-zA-Z][a-zA-Z0-9_-]*$"
+                    "type": "string"
                 },
                 "description": {
                     "description": "The description can be used to provide more details about the workflow.",
                     "type": "string"
-                },
-                "always-run": {
-                    "description": "(Deprecated) Specifies if the workflow should run regardless of whether the previous workflows ran or not. By default, this field is false. This property is deprecated and will be removed in a future release.",
-                    "type": "boolean",
-                    "deprecated": true
                 },
                 "on": {
                     "description": "List of GitHub entity types that should trigger the workflow. By default, the value is pull_request.",
@@ -200,29 +166,18 @@
                         "$ref": "#/definitions/entityType"
                     }
                 },
-                "if": {
-                    "description": "(Deprecated) In the if field, we can specify references to multiple rules. For each rule, we can also specify a list of extra actions that will be executed if this rule is triggered. This property is deprecated and will be removed in a future release, please have a look at the run field.",
-                    "type": ["array", "string"],
-                    "items": {
-                        "$ref": "#/definitions/if"
-                    },
-                    "minItems": 1
-                },
-                "then": {
-                    "description": "(Deprecated) The set of actions to be executed when one of the rules are true. This property is deprecated and will be removed in a future release, please have a look at the run field.",
-                    "$ref": "#/definitions/condition-action"
-                },
-                "else": {
-                    "description": "(Deprecated) The set of actions to be executed none of the rules evaluate to true. This property is deprecated and will be removed in a future release, please have a look at the run field.",
-                    "$ref": "#/definitions/condition-action"
-                },
                 "run": {
                     "description": "The set of actions to be executed for a workflow, can be a single action, a list of actions, a conditional or a combination of all.",
-                    "$ref": "#/definitions/run"
+                    "type": ["array"],
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/condition-action"
+                    }
                 }
             },
             "required": [
-                "name"
+                "name",
+                "run"
             ],
             "additionalProperties": false
         },
@@ -232,12 +187,11 @@
             "properties": {
                 "actions": {
                     "description": "The set of actions to be executed while the evaluation of the rule specified in the until clause is false.",
-                    "type": ["array", "string"],
+                    "type": "array",
                     "items": {
                         "$ref": "#/definitions/action"
                     },
-                    "minItems": 1,
-                    "minLength": 1
+                    "minItems": 1
                 },
                 "until": {
                     "description": "The rule to be met in order for the execution of the set of actions to stop.",
@@ -370,49 +324,40 @@
             "anyOf": [
                 {
                   "type": "object",
-                  "$ref": "#/definitions/run"
+                  "properties": {
+                      "if": {
+                          "type": "string",
+                          "minLength": 1
+                      },
+                      "then": {
+                        "type": ["string", "array"],
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "#/definitions/condition-action"
+                        }
+                      },
+                      "else": {
+                        "type": ["string", "array"],
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "#/definitions/condition-action"
+                        }
+                      }
+                  },
+                  "additionalProperties": false,
+                  "required": ["if", "then"]
                 },
                 {
                   "type": ["string", "array"],
                   "minItems": 1,
                   "items": {
-                      "$ref": "#/definitions/run"
+                      "$ref": "#/definitions/condition-action"
                   }
                 }
             ]
-        },
-        "run": {
-            "type": ["object", "string", "array"],
-            "minItems": 1,
-            "properties": {
-                "if": {
-                    "type": ["string", "array"],
-                    "minItems": 1,
-                    "minLength": 1,
-                    "items": {
-                        "$ref": "#/definitions/if"
-                    }
-                },
-                "then": {
-                  "$ref": "#/definitions/condition-action"
-                },
-                "else": {
-                  "$ref": "#/definitions/condition-action"
-                }
-            },
-            "additionalProperties": false,
-            "required": ["if", "then"]
         }
     },
     "properties": {
-        "api-version": {
-            "description": "The version of Reviewpad to be used. You can set the value to 'reviewpad.com/v3.x'.",
-            "type": "string",
-            "examples": [
-                "reviewpad.com/v3.x"
-            ],
-            "deprecated": true
-        },
         "mode": {
             "description": "The mode in which Reviewpad will run. 'verbose' to add a comment on the pull request with the triggered workflows. 'silent' to run without any comment. By default, the mode is 'silent'.",
             "type": "string",
